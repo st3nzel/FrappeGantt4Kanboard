@@ -1,0 +1,349 @@
+/* Custom styling for Frappe Gantt integration with Kanboard */
+
+.gantt-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    font-size: 14px;
+}
+.gantt-toolbar label {
+    margin-right: 0.5rem;
+}
+.gantt-toolbar .gantt-mode-btn {
+    margin-right: 0.25rem;
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    background: #f5f5f5;
+    cursor: pointer;
+}
+.gantt-toolbar .gantt-mode-btn.active,
+.gantt-toolbar .gantt-mode-btn:hover {
+    background: #e1e1e1;
+    font-weight: bold;
+}
+
+/* Toast notifications */
+.gantt-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 15px;
+    border-radius: 4px;
+    color: #fff;
+    z-index: 2000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+.gantt-toast.show {
+    opacity: 1;
+}
+.gantt-toast.success {
+    background: #28a745;
+}
+.gantt-toast.error {
+    background: #dc3545;
+}
+
+
+.gantt .bar-wrapper.bar-no-dates rect.bar,
+.gantt .bar-wrapper.bar-no-dates rect.bar-progress {
+  stroke: #666 !important;
+  stroke-width: 1px !important;
+  stroke-dasharray: 4 3;
+  fill-opacity: .85;
+}
+
+.gantt .bar-wrapper.bar-no-dates rect.bar {
+  fill: url(#diagonalHatch);
+}
+
+
+.fg-task-panel { margin-top: 12px; }
+.fg-card {
+  border: 1px solid var(--kb-border, #ddd);
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+}
+.fg-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+.fg-title { font-weight: 600; }
+.fg-id { color: #888; margin-left: 6px; font-weight: 400; }
+.fg-actions .btn { margin-left: 6px; }
+.fg-grid {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 8px 12px;
+  margin: 8px 0 12px;
+}
+.fg-grid input[type="date"], .fg-grid input[type="number"] {
+  max-width: 220px;
+}
+.fg-footer { display: flex; align-items: center; gap: 12px; justify-content: space-between; }
+.btn { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc; background: #f9f9f9; text-decoration: none; }
+.btn.primary { background: #2563eb; border-color: #2563eb; color: #fff; }
+
+
+
+/* Example definitions for Kanboard’s standard colors – extend this section as needed */
+.gantt .bar-wrapper.kbcolor-yellow .bar,
+.gantt .bar.kbcolor-yellow { fill: #f5f7c4 !important; }
+
+.gantt .bar-wrapper.kbcolor-blue .bar,
+.gantt .bar.kbcolor-blue { fill: #dbeBff !important; }
+
+.gantt .bar-wrapper.kbcolor-green .bar,
+.gantt .bar.kbcolor-green { fill: #bdf4cb !important; }
+
+/* Additional colors can be added here… */
+
+/*
+ * The full‑width layout rules that hid the project sidebar have been removed.
+ * The Frappe Gantt view now uses the standard app layout and therefore
+ * inherits the same widths and margins as other board views.  Custom
+ * layout rules should be added below if necessary.
+ 
+body.frappe-gantt-fullwidth .sidebar,
+body.frappe-gantt-fullwidth .project-sidebar,
+body.frappe-gantt-fullwidth .page-sidebar,
+body.frappe-gantt-fullwidth .filter-box,
+body.frappe-gantt-fullwidth aside { display:none!important; }
+body.frappe-gantt-fullwidth .content,
+body.frappe-gantt-fullwidth .page { margin-left:0!important; }
+*/
+
+/* Ensure modal overlay elements are positioned above other content (if not already) */
+#modal-overlay,
+#modal-box { 
+  position: fixed;
+
+  z-index: 2147483000 !important;
+}
+
+
+/* When a modal is open, hide the timeline and current markers */
+body.modal-open  #frappe-gantt .grid-header,
+body.fg-modal-open #frappe-gantt .grid-header,
+body.modal-open  #frappe-gantt .current-highlight,
+body.fg-modal-open #frappe-gantt .current-highlight,
+body.modal-open  #frappe-gantt .current-ball-highlight,
+body.fg-modal-open #frappe-gantt .current-ball-highlight {
+  /* Hide elements when a modal is open without triggering reflow */
+  visibility: hidden !important;
+}
+
+/* Optional: also disable interaction with the background content */
+body.modal-open  #frappe-gantt .gantt-container,
+body.fg-modal-open #frappe-gantt .gantt-container {
+  pointer-events: none !important;
+}
+
+/* Toolbar layout remains as in the default styles; only additions follow */
+.gantt-toolbar { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+
+/* Fine vertical separator */
+.gt-toolbar-sep {
+  width:1px;
+  height:1.25rem;
+  background:#e6e9ef;
+  margin:0 .5rem 0 .25rem;
+  align-self:center;
+}
+
+/* Subtle ghost button styling for the “Add task” action */
+.gantt-toolbar .btn-add-task {
+  background: transparent !important;
+  border: 1px solid #d0d7de !important;
+  color: #57606a !important;
+  box-shadow: none !important;
+  padding: 4px 10px;
+  border-radius: 8px;
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+.gantt-toolbar .btn-add-task i { margin-right: .35rem; }
+
+.gantt-toolbar .btn-add-task:hover {
+  background: #f6f8fa !important;
+  border-color: #c1c7cd !important;
+  color: #24292f !important;
+}
+
+.gantt-toolbar .btn-add-task:active {
+  background: #eef2f6 !important;
+  border-color: #b6bec6 !important;
+}
+
+.gantt-toolbar .btn-add-task:focus {
+  outline: 2px solid rgba(76,159,254,.4);
+  outline-offset: 2px;
+}
+
+/* On mobile: hide the separator and increase spacing */
+@media (max-width: 768px) {
+  .gt-toolbar-sep { display:none; }
+}
+
+
+:root{
+  --fg-bg:#fff; --fg-text:#0f172a; --fg-border:#e5e7eb;
+  --fg-input-bg:#fff; --fg-gap:12px; --fg-radius:10px;
+  --fg-ctl-h:30px; --fg-font:13px;
+}
+
+
+.fg-bar-grid{
+  display:grid; gap:var(--fg-gap) 16px; padding:10px 12px; margin:10px 0 8px;
+  background:var(--fg-bg); color:var(--fg-text); border:1px solid var(--fg-border);
+  border-radius:var(--fg-radius); box-shadow:0 2px 10px rgba(0,0,0,.05);
+  grid-template-columns: clamp(220px, 24vw, 360px) 1fr;  /* left panel compact, right panel flexible */
+  grid-template-areas: "header header" "dates relations" "dates actions";
+}
+.fg-area{ min-width:0; }
+.fg-header{ grid-area:header; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.fg-title-wrap{ display:flex; align-items:center; gap:8px; min-width:0; }
+.fg-title{ font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:52ch; }
+.fg-id{ opacity:.65; font-weight:500; }
+.fg-meta{ display:flex; flex-wrap:wrap; gap:6px; }
+
+.fg-dates{ grid-area:dates; display:grid; gap:8px; align-content:start; }
+.fg-dates .row2{ display:grid; grid-template-columns: 1fr 1fr; gap:8px 12px; }
+.field{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+.field label{ font-size:11px; opacity:.85; }
+.field input, .field select{
+  height:var(--fg-ctl-h); padding:2px 8px; font-size:var(--fg-font);
+  border:1px solid var(--fg-border); border-radius:8px; background:var(--fg-input-bg); color:var(--fg-text);
+}
+.field--narrow input{ width:86px; min-width:70px; }
+
+.fg-relations{ grid-area:relations; display:grid; grid-template-rows:auto 1fr; gap:8px; }
+.fg-rel-search{ display:grid; grid-template-columns:minmax(140px,200px) 1fr; gap:8px 12px; align-items:end; position:relative; }
+.fg-field-grow{ position:relative; }
+.fg-rel-search .fg-search-results{
+  position:absolute; left:0; top:calc(100% + 6px); min-width:100%; max-height:260px; overflow:auto; z-index:50;
+  background:var(--fg-bg); border:1px solid var(--fg-border); border-radius:8px; box-shadow:0 10px 24px rgba(0,0,0,.10);
+}
+
+/* einfache, uniforme Liste */
+.fg-rel-list{
+  display:grid; grid-auto-rows:min-content; row-gap:6px;
+  max-height:clamp(48px,10vh,140px); overflow:auto; padding-right:2px;
+}
+.fg-link-row.fg--normalized{
+  display:grid; align-items:center; gap:8px;
+  grid-template-columns: minmax(0,1fr) max-content 28px; /* Text | Checkbox | X */
+}
+.fg-col-desc{ min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.fg-col-check{ display:flex; align-items:center; gap:6px; white-space:nowrap; }
+.fg-col-check:empty{ visibility:hidden; }
+
+.btn-icon{
+  all:unset; cursor:pointer; width:24px; height:24px; border-radius:6px;
+  display:grid; place-items:center; font-size:16px; line-height:1; border:1px solid transparent;
+}
+.btn-icon:hover{ background:rgba(0,0,0,.06); }
+@media (prefers-color-scheme: dark){ .btn-icon:hover{ background:rgba(255,255,255,.08); } }
+
+.fg-actions{ grid-area:actions; display:flex; gap:8px; align-items:center; justify-content:flex-end; }
+.btn{ height:var(--fg-ctl-h); line-height:calc(var(--fg-ctl-h) - 2px); padding:0 10px; font-size:var(--fg-font); border-radius:8px; border:1px solid var(--fg-border); }
+.btn.btn-light{ background:var(--fg-input-bg); }
+.btn.primary{ background:#2563eb; border-color:#1d4ed8; color:#fff; }
+
+/* Breakpoints */
+@media (min-width:1400px){ .fg-bar-grid{ grid-template-columns: clamp(240px, 22vw, 420px) 1fr; } }
+@media (max-width:900px){
+  .fg-bar-grid{ grid-template-areas: "header header" "actions actions" "dates relations"; }
+}
+
+/* --- Sidebar neben dem Chart --- */
+/* ====== Layout and token variables ====== */
+.fg-layout{
+  display:grid;
+  grid-template-columns: var(--fg-sidebar-width, 320px) 1fr;
+  gap: var(--fg-gap, 12px);
+  align-items:start;
+}
+
+/* ====== Sidebar container ====== */
+#fg-sidebar{
+  position:relative;
+  padding-top: 90px;                /* align the top padding with the height of the chart bars */
+  background: var(--fg-sidebar-bg, #fff);
+  border-right: 1px solid var(--fg-border, #e5e7eb);  /* subtle separation from the chart */
+  border-radius: 8px;
+  box-shadow: 0 1px 0 rgba(0,0,0,.02);
+}
+
+/* Header styling: small, neutral tone */
+#fg-sidebar .fg-side-header{
+  margin: 0 8px 6px;
+  font-weight:600;
+  font-size:.9rem;
+  letter-spacing:.02em;
+  color: var(--fg-header-fg, #111827);
+}
+
+/* ====== Zebra‑striped grid similar to the chart ====== */
+#fg-side-list{
+  position:relative;
+  margin-top:0;
+  isolation:isolate;  /* establish a z‑index context for overlay elements */
+}
+
+/* Stripes in the row grid (48px = 30px bar height + 18px padding; adjustable via JS below) */
+#fg-side-list::before{
+  content:"";
+  position:absolute; inset:0;
+  z-index:0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(17,24,39,.035) 0,
+    rgba(17,24,39,.035) var(--fg-row-h, 48px),
+    transparent var(--fg-row-h, 48px),
+    transparent calc(var(--fg-row-h, 48px) * 2)
+  );
+  pointer-events:none;
+}
+
+/* ====== Entries ====== */
+.fg-side-item{
+  position:absolute; left:6px; right:6px;      /* provide a small amount of interior spacing */
+  z-index:1;
+  display:flex; align-items:center; line-height:1;
+  height: var(--fg-bar-h, 30px);                /* visually match the bar height */
+  padding: 0 10px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  color:#111827;
+  border-left:3px solid transparent;
+  border-radius: 6px;
+  transition: background .12s ease, border-color .12s ease;
+}
+.fg-side-item:hover{ background: rgba(2,6,23,.04); }
+.fg-side-item:focus-visible{
+  outline: 2px solid #94a3b8; outline-offset: 1px;
+  border-left-color:#64748b;
+}
+.fg-side-item.is-active{
+  background: rgba(59,130,246,.08);
+  border-left-color:#3b82f6;
+}
+
+/* ====== Chart: elegant horizontal scrolling ====== */
+#frappe-gantt{ overflow-x:auto; overflow-y:hidden; scrollbar-gutter: stable both-edges; }
+
+/* Standardized scrollbar styling (Firefox & modern Chromium browsers) */
+#frappe-gantt{ scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+
+/* WebKit/Chromium refinements */
+#frappe-gantt::-webkit-scrollbar{ height: 10px; }
+#frappe-gantt::-webkit-scrollbar-thumb{ background:#cbd5e1; border-radius:999px; }
+#frappe-gantt::-webkit-scrollbar-track{ background:transparent; }
+
+/* Content darf breiter werden, damit gescrollt werden kann */
+#frappe-gantt .gantt-container,
+#frappe-gantt .grid-header{ width: max-content; }
+#frappe-gantt svg.gantt{ width:auto !important; display:block; }
+
+
