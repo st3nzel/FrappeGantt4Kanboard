@@ -1,58 +1,63 @@
 # Frappe Gantt for Kanboard
 
-This plugin adds an **interactive Gantt chart** to the Kanboard project management system.  It leverages the open‑source [Frappe Gantt](https://github.com/frappe/gantt) library to render tasks on a timeline and extends Kanboard with rich dependency management, custom durations, interactive editing and export capabilities.  Instead of showing a static snapshot of tasks, the plugin turns your project into a live schedule where tasks, links and durations can be modified directly on the chart.
+This plugin adds an **interactive Gantt chart** to the Kanboard project management system. It leverages the open-source [Frappe Gantt](https://github.com/frappe/gantt) library to render tasks on a timeline and extends Kanboard with dependency management, custom durations and export capabilities.
 
-## Plugin highlights
+## Features
 
-* **Dedicated Gantt tab** – Each project gains its own full‑screen Gantt chart.  All JavaScript and CSS assets are bundled in the plugin, so it runs entirely offline without relying on external CDNs.
-
-* **Drag‑and‑drop editing** – Users with the appropriate permissions can move tasks along the timeline or resize them to change start and due dates.  Every drag or resize writes the updated values back to Kanboard immediately.
-
-* **Custom durations** – The task form includes a **Duration** field.  Entering a value defines the default length of the bar when no due date is set.  This value is stored as task metadata and never touches the core Kanboard tables, avoiding database errors.
-
-* **Rich dependency support** – Internal links of type **“relates to”** are used to draw arrows between tasks.  A small *seed* marker lets you choose the direction of the arrow (i.e. whether Task A relates to Task B or vice versa).  Dependencies can be created, viewed and removed directly from the Gantt view via the sidebar.
-
-* **Automatic enforcement of block relationships** – The plugin honours Kanboard’s “blocks” and “is blocked by” links.  If a task is blocked, it cannot be scheduled before its blocker finishes.  When a task that blocks others is extended, the plugin automatically shifts the start dates of its dependents so they no longer start too early.  Visual cues (red/white stripes on the bar) indicate whether a task is blocked or acting as a blocker.
-
-* **Sidebar and search** – A collapsible sidebar lists all tasks with their durations and watchers.  It includes a live search box to quickly find tasks, plus a plus‑button to add new dependencies.  Link types and existing relationships are shown in a list so you can delete them when they are no longer needed.
-
-* **Export to PDF** – You can export the current Gantt chart as a multi‑page PDF.  The plugin clones the SVG, inlines styles, adds a white background and slices the timeline into printable pages.
-
-* **Minimum disturbance updates** – When bars are moved the plugin respects existing watchers and only applies the minimal changes necessary (e.g. raising the start date of blocked tasks) to keep the schedule consistent.
+* **Dedicated Gantt view per project** – A new tab appears in the project header that opens a full-screen Gantt chart. All assets are bundled locally and no external CDNs are used.
+* **Interactive timeline** – Users with edit permissions can drag and resize task bars to adjust the start and due dates. Changes are immediately persisted back to Kanboard.
+* **Custom duration field** – The task creation/edit form gains a numeric **Duration** input. The value is stored in task metadata and used to calculate bar lengths on the chart. Duration values are never written directly into Kanboard’s SQL table; the field is removed before inserts/updates and saved separately in metadata.
+* **Dependency links (via task panel popup)** – Click a task bar to open the **task panel (popup)** and use its search + “+” to add **internal links**. Currently the “relates to” link type is used to represent dependencies. A *seed* record is stored so that the plugin knows which side of the relation is the arrow head. Links can be created and removed without leaving the Gantt view.
+* **Blocked and blocker indicators** – If a task is blocked by another task (via a “blocks” link), the plugin ensures the blocked task cannot start before its blocker finishes. Conversely, when a task blocks others and its due date is extended, the plugin automatically shifts the start date of directly blocked tasks forward. Red/white stripes on the left side of a bar denote that the task is *blocked*; stripes on the right side denote that the task *blocks* other tasks.
+* **Sidebar (task list next to the chart)** – The **sidebar is the task list** that lives next to the chart and provides live search to quickly locate tasks. (The **task panel** is the popup that appears when you click a bar.)
+* **Parent/child logic** – If you use Kanboard’s internal “is a parent of” / “is a child of” links, the chart infers a **parent→children structure** for visible tasks. Roots are tasks without a visible parent; children are stably ordered (start asc, end asc, id asc). This affects grouping/z-order but does not change Kanboard’s underlying data.
+* **PDF export (experimental)** – Prototype export that clones the SVG, inlines styles, inserts backgrounds and slices the chart into pages. Not fully supported; layout, pagination and fonts may not render correctly for long or dense charts.
+* **Translations** – Incomplete: some UI strings are a German/English mix; only `de_DE` is partially covered.
+* **Upstream library limitations** – Frappe Gantt currently **does not support milestones** and some **interactions** (e.g., native drag-and-drop features like drag-to-create links or milestone rendering). If the library adds these, they will be implemented here as well.
 
 ## Installation
 
-To install Frappe Gantt simply extract the plugin folder into your Kanboard plugins directory and reload Kanboard.  The plugin is self‑contained and does not require any external build steps.
+There are two ways to install plugins in Kanboard: via the **web interface** or by manually copying files. Since Kanboard v1.2.8 the web interface is disabled by default for security reasons.
 
-1. Download the plugin archive (this repository includes a pre‑built `FrappeGantt` folder).
-2. Copy or extract the `FrappeGantt` folder into your Kanboard `plugins` directory (for example `kanboard/plugins/FrappeGantt`).  Make sure the folder name matches the plugin class name (`FrappeGantt`) so that Kanboard will register it.
-3. Ensure the web server user has permission to read the plugin files.  When you reload Kanboard, a new **Gantt** tab will appear in the project header.
+### Installation via the web interface
 
-If your Kanboard instance has the built‑in plugin installer enabled, you can alternatively upload the ZIP file through **Settings → Plugins**.  For this to work the `PLUGIN_INSTALLER` setting must be enabled and the plugins directory writable【93785668332061†L113-L123】.
+1. Ensure your Kanboard instance meets the following requirements:
+   * The **plugin directory must be writable** by the web server user.
+   * The **PHP Zip extension** must be available on your server.
+   * The configuration option `PLUGIN_INSTALLER` must be set to `true` in your `config.php` file.
+   * Only administrators can install or remove plugins from the user interface.
+2. Download the ZIP archive of this plugin.
+3. Log in to Kanboard as an administrator and navigate to **Settings → Plugins**.
+4. Click **“Upload and install a plugin”**, select the downloaded ZIP file, and confirm. Kanboard will extract the plugin into the `plugins` directory and make the Gantt tab available for each project.
 
-## Using the Gantt chart
+### Manual installation
 
-* **Opening the chart:** Navigate to any project and click the **Gantt** tab.  The chart will render all tasks in the project, grouped by swimlane and including subtasks if enabled.
+If you prefer to install plugins manually or your installation does not support the built-in installer, follow these steps:
 
-* **Editing tasks:** Click and drag a bar to move the task horizontally or grab the handle at the ends to extend or shorten it.  Double‑clicking a bar opens the standard task edit modal.  Durations are inferred from the start and due dates or from the custom **Duration** field if no due date is set.
+1. Download the ZIP archive of this plugin and extract it locally. You should end up with a folder called `FrappeGantt` containing `Plugin.php`, `Assets`, `Controller`, `Service`, etc.
+2. Upload the `FrappeGantt` folder to the **plugins directory** of your Kanboard installation, e.g. `/path/to/kanboard/plugins/FrappeGantt`.
+3. Ensure that the web server user has read access to the plugin files and that the plugin folder name matches its class (first letter capitalized) so Kanboard can register it.
+4. Reload the Kanboard page. You should see a **Gantt** tab in the project header.
 
-* **Creating dependencies:** Use the search field in the sidebar to find the target task, select **“relates to”** and click the plus button to create an arrow from the selected task to the target.  The plugin stores a *seed* record to remember the arrow direction.  To remove a link, hover over it in the list and click the delete icon.
+## Usage
 
-* **Understanding blockers:** Red/white stripes on the left edge of a bar show that the task is **blocked** by another (it cannot start sooner).  Stripes on the right edge mean the task **blocks** other tasks.  If you extend a blocker, the plugin will automatically adjust the start dates of blocked tasks to maintain the dependency.
-
-* **Filtering and searching:** The sidebar provides a live search to quickly locate tasks.  You can collapse or expand the sidebar to maximise the chart area.  Tasks are grouped by swimlane and sorted to reflect their order in Kanboard.
-
-* **Exporting:** Click the export icon in the toolbar to generate a PDF of your current view.  The plugin translates the SVG into a PDF, adds margins and backgrounds and splits the content into multiple pages when necessary.
+1. Open a project and click the **Gantt** tab. The chart will load all tasks in the project.
+2. **Drag or resize** a bar to change a task’s start or due date. If a task is blocked by another, the plugin will prevent you from starting it before the blocker finishes. Extending a blocker’s due date will automatically push forward the start of any directly blocked tasks.
+3. **Click a task bar to open the task panel (popup)**. Use its search field + “+” to add a dependency (currently “relates to”). A seed record determines the arrow direction. Links can be removed via the list of existing links.
+4. **Duration** values can be set when creating or editing a task. Enter a numeric value in the “Duration” field; the plugin stores it as metadata and uses it to draw the bar length (especially when start/due dates are missing).
+5. Use the **export** option in the toolbar to generate a PDF of the current view (**experimental**). Best for small/simple charts; complex views may not render as expected.
 
 ## Requirements
 
-* **Kanboard 1.2.20 or higher** – Frappe Gantt relies on hooks introduced in this version.
-* **Modern browser** – Chrome, Edge or Firefox are recommended for the best experience.
-
+* Kanboard **version ≥ 1.2.20** (the plugin uses hooks available from this version onward).
+* PHP 8.1+ is recommended for Kanboard itself.
+* A modern browser (Chrome/Edge/Firefox) to use the interactive Gantt.
 
 ## Development
 
-This plugin is open source and welcomes contributions.  The code is organized as follows:
+**Important notes:** Limited testing (no intensive/automated suites). This project is a **sketch/proof-of-concept** and should be **rewritten cleanly** (structure, naming, separation of concerns). I’m **not an software developer**; the code simply serves my current needs.
+
+This plugin is open source and welcomes contributions. The code is organized as follows:
 
 * **`Plugin.php`** – Registers routes, hooks and metadata fields; enforces dependency rules when tasks are updated.
 * **`Controller`** – Implements API endpoints for saving tasks and managing links.
@@ -60,8 +65,6 @@ This plugin is open source and welcomes contributions.  The code is organized as
 * **`Assets/css`** – Styles for the Gantt chart, sidebar and overlays.
 * **`Template`** – Blade templates used to render the task form, sidebar, and the main Gantt view.
 
-When modifying the plugin, respect the Kanboard coding standards.  To build the JavaScript and CSS bundles, run the provided build scripts (if available) or include your changes directly in the source files under `Assets`.
-
 ## License
 
-This plugin is distributed under the MIT License.  See the [LICENSE](LICENSE) file for details.
+This plugin is distributed under the MIT License.
