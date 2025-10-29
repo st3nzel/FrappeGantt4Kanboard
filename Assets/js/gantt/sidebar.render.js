@@ -78,6 +78,26 @@ function getGridOffset(root) {
       a.style.top = Math.round(i * rowH) + 'px';
       a.style.height = barH + 'px';
       a.style.paddingLeft = (12 + ((t._level || 0) * 16)) + 'px';
+      // … innerhalb der Stelle, an der für jeden Task 'a' erzeugt wird
+
+var safe = (t.name || ('#' + t.id)).replace(/[&<>"']/g, function (s) {
+  return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]);
+});
+
+a.innerHTML =
+  '<span class="fg-side-title">' + safe + '</span>' +
+  '<button type="button" class="fg-side-edit btn-icon" ' +
+  ' title="Task bearbeiten" aria-label="Task bearbeiten" data-id="' + String(t.id) + '">&#9998;</button>';
+var editBtn = a.querySelector('.fg-side-edit');
+if (editBtn) {
+  editBtn.addEventListener('click', function (ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (typeof window.openTaskPopup === 'function') {
+      window.openTaskPopup(t.id);
+    }
+  });
+}
 
       if (SIDEBAR_CLICK === 'kb-modal') {
         a.href = t.url || '#';

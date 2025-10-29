@@ -99,12 +99,12 @@ if (!isset($saveUrlPattern)) {
 <?= $this->asset->js('plugins/FrappeGantt/Assets/js/gantt/chart.loadChart.js') ?>
 <?= $this->asset->js('plugins/FrappeGantt/Assets/js/gantt/bootstrap.dom.js') ?>
 <?= $this->asset->js('plugins/FrappeGantt/Assets/js/gantt/iife-end.js') ?>
-<?= $this->asset->js('plugins/FrappeGantt/Assets/vendor/jspdf.umd.min.js') ?>
+<!-- <?= $this->asset->js('plugins/FrappeGantt/Assets/vendor/jspdf.umd.min.js') ?>
 <?= $this->asset->js('plugins/FrappeGantt/Assets/vendor/svg2pdf.umd.min.js') ?>
 <?= $this->asset->js('plugins/FrappeGantt/Assets/vendor/html-to-image.js') ?>
 <?= $this->asset->js('plugins/FrappeGantt/Assets/vendor/svg-export.umd.standalone.min.js') ?>
 <?= $this->asset->js('plugins/FrappeGantt/Assets/vendor/umd.js') ?>
-<?= $this->asset->js('plugins/FrappeGantt/Assets/js/gantt/export.pdf.js') ?>
+<?= $this->asset->js('plugins/FrappeGantt/Assets/js/gantt/export.pdf.js') ?> -->
 <?= $this->asset->js('plugins/FrappeGantt/Assets/js/gantt/sidebar.render.js') ?>
 
 

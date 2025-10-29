@@ -347,3 +347,130 @@ body.fg-modal-open #frappe-gantt .gantt-container {
 #frappe-gantt svg.gantt{ width:auto !important; display:block; }
 
 
+/* --- Zeile: Dropdown | Suche+Plus ---------------------------------------------------- */
+:where(#fg-modal-root, #frappe-gantt) .fg-rel-search{
+  display: grid;
+  grid-template-columns: minmax(140px,200px) 1fr max-content; /* Label+Select | Suche | + */
+  gap: 8px 12px;
+  align-items: end;
+}
+:where(#fg-modal-root, #frappe-gantt) .fg-rel-search .field{ min-width: 0; } /* gegen Überbreite */
+:where(#fg-modal-root, #frappe-gantt) .fg-field-grow{ width: 100%; }
+
+/* Input + Plus nebeneinander */
+:where(#fg-modal-root, #frappe-gantt) .fg-input-row{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+:where(#fg-modal-root, #frappe-gantt) .fg-input-row > input{
+  flex: 1 1 auto;
+  min-width: 10rem;
+}
+:where(#fg-modal-root, #frappe-gantt) #fg-link-add.btn-icon{
+  flex: 0 0 auto;
+}
+
+/* --- Linkliste: jede Zeile im Flex, rechts Seed/Remove -------------------------------- */
+:where(#fg-modal-root, #frappe-gantt) .fg-rel-list{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+:where(#fg-modal-root, #frappe-gantt) .fg-link-row{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0; /* erlaubt Ellipsis */
+}
+:where(#fg-modal-root, #frappe-gantt) .fg-col-type{
+  flex: 0 0 max-content; /* z.B. "relates to" */
+}
+:where(#fg-modal-root, #frappe-gantt) .fg-col-target{
+  flex: 1 1 auto;        /* füllt die Mitte */
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Seed-Label + Remove-Button sauber rechtsbündig */
+:where(#fg-modal-root, #frappe-gantt) .fg-seed-inline{
+  margin-left: auto;          /* schiebt Seed nach rechts */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+:where(#fg-modal-root, #frappe-gantt) .fg-link-row .fg-remove{
+  margin-left: 8px;           /* Abstand rechts neben Seed oder Ziel */
+}
+:where(#fg-modal-root, #frappe-gantt) .fg-link-row > .fg-remove:last-child{
+  margin-left: auto;          /* wenn kein Seed vorhanden → Remove ganz nach rechts */
+}
+
+/* --- Responsive: Relations unter Dates; Suche bleibt mit + in einer Reihe ------------- */
+@media (max-width: 900px){
+  :where(#fg-modal-root, #frappe-gantt) .fg-bar-grid{
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "header"
+      "actions"
+      "dates"
+      "relations";           /* Relations-Block rutscht nach unten */
+  }
+  :where(#fg-modal-root, #frappe-gantt) .fg-rel-search{
+    grid-template-columns: 1fr max-content; /* Suche | +  (Dropdown + Label gehen darüber) */
+  }
+  :where(#fg-modal-root, #frappe-gantt) .fg-rel-search > .field:first-child{
+    grid-column: 1 / -1;     /* Link-Typ (Dropdown) über die volle Breite */
+  }
+}
+/* Sidebar-Zeile: Flex-Aufteilung Titel | ... | Stift */
+.fg-side-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  overflow: visible;         /* wichtig: Container clippt NICHT den Button */
+}
+
+.fg-side-item .fg-side-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;          /* Ellipsis sitzt auf dem Titel, nicht auf der Zeile */
+  text-overflow: ellipsis;
+}
+
+.fg-side-item .fg-side-edit {
+  margin-left: auto;         /* schiebt Stift ganz nach rechts */
+  flex: 0 0 auto;
+}
+/* Modal-Overlay für das Taskpanel (zentriert, feste Breite, Scroll im Panel) */
+#fg-modal-root.fg-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;          /* über Sidebar & Chart */
+  pointer-events: none;   /* klickt nichts ab, solange geschlossen */
+}
+
+#fg-modal-root.is-open { pointer-events: auto; }
+
+#fg-modal-root .fg-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+}
+
+#fg-modal-root .popup-wrapper {
+  position: fixed;
+  top: 12vh;              /* Abstand vom oberen Rand */
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(960px, 92vw);  /* nicht volle Breite */
+  max-height: 76vh;         /* bei langen Inhalten scrollbar */
+  overflow: auto;
+  /* optional etwas Luft/Schmuck */
+  border-radius: 10px;
+}

@@ -224,56 +224,8 @@
         requestAnimationFrame(function () { afterRender(null, gantt); });
       },
 
-      custom_popup_html: function (task) {
-        return (
-          '<div class="fg-popup">' +
-            '<div id="fg-popup-host" class="fg-popup-host" data-task-id="' + String(task.id) + '">' +
-              '<div class="fg-loading">Lade…</div>' +
-            '</div>' +
-          '</div>'
-        );
-      },
 
-      on_click: function (task) {
-        try { sessionStorage.setItem('fg-reopen-task', String(task.id)); } catch (e) {}
-        var bar = null;
-        if (Array.isArray(gantt.bars)) {
-          var idStr = String(task && task.id);
-          bar = gantt.bars.find(function (b) { return b && b.task && String(b.task.id) === idStr; }) || null;
-        }
-        if (bar && typeof gantt.show_popup === 'function') {
-          gantt.show_popup(bar);
-        } else {
-          console.warn('[Gantt] Kein Bar-Objekt für Task', task && task.id);
-        }
-        var wrap = container.querySelector('.popup-wrapper');
-        if (wrap && !wrap.querySelector('#fg-popup-host')) {
-          wrap.innerHTML =
-            '<div class="fg-popup">' +
-              '<div id="fg-popup-host" class="fg-popup-host" data-task-id="' + String(task.id) + '">' +
-                '<div class="fg-loading">Lade…</div>' +
-              '</div>' +
-            '</div>';
-        }
-        var url = (cfg.detailUrlPattern || '').replace('__TASK__', String(task.id));
-        if (!url) return;
-        fetch(url, { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
-          .then(function (r) { return r.json(); })
-          .then(function (data) {
-            if (!data || !data.ok) return;
-            var host = container.querySelector('.popup-wrapper #fg-popup-host');
-            if (!host) return; renderTaskPanel(data.task, host);
-            var wrap2 = container.querySelector('.popup-wrapper');
-            if (wrap2) {
-              var rect = wrap2.getBoundingClientRect();
-              var left = parseFloat(wrap2.style.left || 0);
-              if (rect.right > window.innerWidth - 8) left -= (rect.right - (window.innerWidth - 8));
-              if (rect.left < 8) left += (8 - rect.left);
-              wrap2.style.left = Math.round(left) + 'px';
-            }
-          })
-          .catch(console.error);
-      }
+     
     };
 
     // Create the Gantt instance
@@ -308,6 +260,84 @@
         return r;
       };
     }
+// Eigene Funktion zum Öffnen des Taskpanels als seitenweiter Modal-Layer
+window.openTaskPopup = function (taskId) {
+  // Modal-Root anlegen oder wiederverwenden
+  var root = document.getElementById('fg-modal-root');
+  if (!root) {
+    root = document.createElement('div');
+    root.id = 'fg-modal-root';
+    root.className = 'fg-modal';
+    document.body.appendChild(root);
+  }
+  // wichtig für Pointer-Events in CSS
+  root.classList.add('is-open');
+
+  // Inhalt (Backdrop + Host) einsetzen
+  root.innerHTML =
+    '<div class="fg-modal-backdrop" data-close="1"></div>' +
+    '<div class="popup-wrapper">' +
+      '<div class="fg-popup">' +
+        '<div id="fg-popup-host" class="fg-popup-host" data-task-id="' + String(taskId) + '">' +
+          '<div class="fg-loading">Lade…</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+  document.body.classList.add('fg-modal-open');
+
+  // Schließen per Backdrop/ESC (und alles sauber entfernen)
+  var prevFocus = document.activeElement;
+
+  var close = function () {
+    document.body.classList.remove('fg-modal-open');
+    var r = document.getElementById('fg-modal-root');
+    if (r) {
+      r.classList.remove('is-open');
+      if (r.parentNode) r.parentNode.removeChild(r); // komplett rausnehmen
+    }
+    if (prevFocus && typeof prevFocus.focus === 'function') {
+      try { prevFocus.focus(); } catch (e) {}
+    }
+  };
+var backdrop = root.querySelector('.fg-modal-backdrop');
+if (backdrop) {
+ backdrop.addEventListener('click', function () { close(); });
+}
+const ac = new AbortController();
+const { signal } = ac;
+
+const onKey = (ev) => { if (ev.key === 'Escape') close(); };
+document.addEventListener('keydown', onKey, { capture: true, signal });
+
+backdrop.addEventListener('click', () => close(), { signal });
+
+function close() {
+  ac.abort(); // entfernt alle Listener, die mit signal registriert wurden
+  document.body.classList.remove('fg-modal-open');
+  const r = document.getElementById('fg-modal-root');
+  if (r && r.parentNode) r.parentNode.removeChild(r);
+}
+
+
+
+  // Taskdetails laden und Panel rendern
+  var url = (cfg.detailUrlPattern || '').replace('__TASK__', String(taskId));
+  if (!url) return;
+
+  fetch(url, { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (!data || !data.ok) return;
+      var host = document.getElementById('fg-popup-host');
+      if (host && typeof renderTaskPanel === 'function') {
+        renderTaskPanel(data.task, host);
+      }
+      var wrap = root.querySelector('.popup-wrapper');
+      if (wrap && wrap.focus) wrap.focus();
+    })
+    .catch(console.error);
+};
 
     // Optionally reopen the popup (this is the original code, kept unchanged)
     (function reopenLastPopupOnce() {
@@ -339,7 +369,7 @@
           if (tries < 50) return setTimeout(tryOpen, 60);
           return;
         }
-        if (typeof gantt.show_popup === 'function') gantt.show_popup(bar);
+if (typeof window.openTaskPopup === 'function') window.openTaskPopup(targetId);
         var wrap = container.querySelector('.popup-wrapper');
         if (wrap && !wrap.querySelector('#fg-popup-host')) {
           wrap.innerHTML =

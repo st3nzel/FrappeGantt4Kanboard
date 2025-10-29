@@ -86,7 +86,10 @@ function renderTaskPanel(t, host) {
           </div>
         </div>
 
-        <div id="fg-links-list" class="fg-rel-list" aria-live="polite"></div>
+        <div id="fg-links-list"
+            class="fg-rel-list"
+            aria-live="polite"
+            data-current-task-id="${t.id}"></div>
       </div>
     </div>
   `;
